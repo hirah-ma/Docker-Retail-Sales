@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: uk_amazon_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: salesdb
+      POSTGRES_USER: etl_user
+      POSTGRES_PASSWORD: etl_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etl_user -d salesdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ./app
+    container_name: uk_amazon_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: salesdb
+      POSTGRES_USER: etl_user
+      POSTGRES_PASSWORD: etl_pass
+      CSV_PATH: /app/data/uk_amazon_sales.csv
+    ports:
+      - "5000:5000"
+
+volumes:
+  pgdata:

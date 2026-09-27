@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UK Amazon Sales — KPI Dashboard</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #f4f5f7; margin: 0; padding: 2rem; color: #1a1a1a; }
+  h1 { margin-bottom: 0.2rem; }
+  .subtitle { color: #666; margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+  .card { background: white; border-radius: 10px; padding: 1.25rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.03em; color: #555; margin: 0 0 0.75rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #eee; }
+  th { color: #888; font-weight: 600; }
+  .big-stat { font-size: 2rem; font-weight: 700; color: #2563eb; }
+  .badge { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+  <span class="badge">● served from PostgreSQL via Flask, running in Docker</span>
+  <h1>UK Amazon Sales — KPI Dashboard</h1>
+  <p class="subtitle">Data loaded from cleaned + aggregated ETL pipeline output</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Profit Margin</h2>
+      {% for row in data.profit_margin %}
+        <div class="big-stat">{{ row.Profit_Margin_Percent }}%</div>
+        <p>£{{ "{:,.2f}".format(row.Total_Revenue) }} revenue · £{{ "{:,.2f}".format(row.Total_Profit) }} profit</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Average Order Value</h2>
+      {% for row in data.aov %}
+        <div class="big-stat">£{{ row.Average_Order_Value }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Orders by Status</h2>
+      <table>
+        <tr><th>Status</th><th>Count</th></tr>
+        {% for row in data.orders_by_status %}
+        <tr><td>{{ row.Order_Status }}</td><td>{{ row.Order_Count }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Region-wise Sales</h2>
+      <table>
+        <tr><th>Region</th><th>Revenue</th><th>Orders</th></tr>
+        {% for row in data.region_sales %}
+        <tr><td>{{ row.Region }}</td><td>£{{ "{:,.2f}".format(row.Region_Revenue) }}</td><td>{{ row.Num_Orders }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Monthly Revenue</h2>
+      <table>
+        <tr><th>Month</th><th>Revenue</th><th>Orders</th></tr>
+        {% for row in data.monthly_revenue %}
+        <tr><td>{{ row.Sale_Month }}</td><td>£{{ "{:,.2f}".format(row.Monthly_Revenue) }}</td><td>{{ row.Num_Orders }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Top 10 Products</h2>
+      <table>
+        <tr><th>Product</th><th>Revenue</th><th>Units</th></tr>
+        {% for row in data.top_products %}
+        <tr><td>{{ row.Product_Name }}</td><td>£{{ "{:,.2f}".format(row.Product_Revenue) }}</td><td>{{ row.Units_Sold }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Units Sold by Category</h2>
+      <table>
+        <tr><th>Category</th><th>Units</th></tr>
+        {% for row in data.units_by_category %}
+        <tr><td>{{ row.Category }}</td><td>{{ row.Total_Units_Sold }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</body>
+</html>
