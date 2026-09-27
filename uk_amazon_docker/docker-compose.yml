@@ -24,8 +24,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      POSTGRES_HOST: db
+      POSTGRES_HOST: host.docker.internal
       POSTGRES_PORT: 5432
       POSTGRES_DB: salesdb
       POSTGRES_USER: etl_user
